@@ -11,10 +11,11 @@ import { PepSpecs } from "@/utils/DataSearch";
 import { LocalStorage } from "@/utils/LocalStorage";
 import { useRouter, useSearchParams } from "next/navigation";
 
+
 export default function Search(): React.JSX.Element {
     const router = useRouter();
-    
     const searchParams = useSearchParams();
+
     let page = searchParams.get('p');
 
     const [pepData, setPepData] = useState<PepSpecs[]>([]);
