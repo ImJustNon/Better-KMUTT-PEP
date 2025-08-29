@@ -7,6 +7,7 @@ type SearchRequestBody = {
     year?: string | null;
     semester?: string | null;
     examType?: string | null;
+    page?: string | null;
 };
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
@@ -16,7 +17,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if(!body.year) body.year = null;
     if(!body.semester) body.semester = null;
     if(!body.examType) body.examType = null;
+    if(!body.page) body.page = "0";
 
-    // return NextResponse.json(new DataSearch(pepData).search(body.query, body.year, body.semester, body.examType));
-    return NextResponse.json(new DataSearch(pepData).getByOffset(0));
+    const result = new DataSearch(pepData).search(body.query, body.year, body.semester, body.examType);
+    const splitPage = new DataSearch(result).splitPage(parseInt(body.page));
+
+    return NextResponse.json({
+        data: splitPage,
+        total: String(result.length)
+    });
 }

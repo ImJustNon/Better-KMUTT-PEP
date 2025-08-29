@@ -4,16 +4,16 @@ export class LocalStorage {
         this.storage = window.localStorage;
     }
 
-    getPageOffset(): string {
-        let pof = this.storage.getItem("pageOffset");
+    getPage(): string {
+        let pof = this.storage.getItem("page");
         if(!pof){
-            this.setPageOffset("0");
-            pof = "0";
+            this.setPage("1");
+            pof = "1";
         } 
         return pof;
     }
 
-    setPageOffset(val: string): void {
-        this.storage.setItem("pageOffset", val);
+    setPage(val: string): void {
+        this.storage.setItem("page", val);
     }
 }

@@ -55,16 +55,17 @@ export default class DataSearch {
         
         // idk how did it actualy works but it works well LOL
         return this.data.filter(d => {
-            return (query ? d.subjectName.includes(query) : true) &&
-                   (year ? d.year === year : true) &&
-                   (semester ? d.semester === semester : true) &&
-                   (examType ? d.examType === examType : true);
+            return  (query ? d.subjectName.includes(query) : true) ||
+                    (query ? d.subjectCode.includes(query) : true) &&
+                    (year ? d.year === year : true) &&
+                    (semester ? d.semester === semester : true) &&
+                    (examType ? d.examType === examType : true);
         });
     }
 
-    public getByOffset(offset: number): PepSpecs[] {
+    public splitPage(offset: number): PepSpecs[] {
         const sortData = this.data.sort((a, b) => parseInt(a.index) - parseInt(b.index));
-        return sortData.slice(offset * 10, (offset * 10) + 10);
+        return sortData.slice(offset * 12, (offset * 12) + 12);
     }
 
 }
