@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Better-PEP
 
-## Getting Started
+ระบบค้นหาและดาวน์โหลดข้อสอบเก่า (Past Exam Papers) 
 
-First, run the development server:
+## คุณสมบัติหลัก
+- ค้นหาข้อสอบเก่าตามรหัสวิชา ชื่อวิชา ปีการศึกษา ภาคการศึกษา และประเภทข้อสอบ
+- ดาวน์โหลดไฟล์ข้อสอบได้โดยตรง
+- ระบบกรองและค้นหาแบบ Real-time
+- รองรับการใช้งานบนมือถือและเดสก์ท็อป
+- SEO Friendly (รองรับ sitemap และ robots)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## เทคโนโลยีที่ใช้
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- Chakra UI (บางส่วน)
+- Axios
+
+## โครงสร้างโปรเจกต์ (บางส่วน)
+```
+public/            # ไฟล์ static เช่น รูป โลโก้
+src/
+  app/             # Next.js App Router
+    (pages)/search # หน้า Search
+    api/           # API สำหรับค้นหาและดึงข้อมูล
+  assets/          # ไฟล์ SVG โลโก้
+  components/      # UI Components
+  data/pep-data.json # ข้อมูลข้อสอบ
+  utils/           # ฟังก์ชันช่วยเหลือ เช่น DataSearch
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## วิธีเริ่มต้นใช้งาน
+1. ติดตั้ง dependencies
+   ```bash
+   npm install
+   ```
+2. รันเซิร์ฟเวอร์สำหรับพัฒนา
+   ```bash
+   npm run dev
+   ```
+3. เปิดใช้งานที่ [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## การ build สำหรับ production
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## การปรับแต่ง/เพิ่มข้อมูลข้อสอบ
+- เพิ่ม/แก้ไขไฟล์ `src/data/pep-data.json`
+- โครงสร้างข้อมูลดูได้ในไฟล์นั้น
 
-## Learn More
+## SEO
+- มีไฟล์ `robots.ts` และ `sitemap.ts` สำหรับ Next.js ใน `src/app/`
+- แก้ไข domain ในไฟล์เหล่านี้ให้ตรงกับ production จริง
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## การ Contribute
+- Fork ได้เลย
