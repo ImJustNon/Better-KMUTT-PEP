@@ -1,6 +1,6 @@
 "use client"
 
-import { Book, BookOpen, Calendar, Check, ChevronDown, ChevronLeft, ChevronRight, Download, FileText, GraduationCap, SearchCheck, SearchIcon,  } from "lucide-react";
+import { Book, BookOpen, Calendar, Check, ChevronDown, ChevronLeft, ChevronRight, Download, FileText, GraduationCap, SearchCheck, SearchIcon, X,  } from "lucide-react";
 import logo from "../../../assets/logo.svg";
 import Image from "next/image";
 import { ButtonGroup, createListCollection, IconButton, Pagination, Portal, Select } from "@chakra-ui/react";
@@ -16,7 +16,7 @@ export default function Search(): React.JSX.Element {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    let page = searchParams.get('p');
+    const page = searchParams.get('p');
 
     const [pepData, setPepData] = useState<PepSpecs[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>("");
@@ -60,22 +60,32 @@ export default function Search(): React.JSX.Element {
         examType: null
     });
 
-    useEffect(() => {
-        (async() => {
-            if(!page){
-                page = new LocalStorage().getPage();
-            }
-            const response = await axios.post("/api/v1/pep/search",{
-                query: searchQuery,
-                year: selectedValues.year,
-                semester: selectedValues.semester,
-                examType: selectedValues.examType,
-                page: (parseInt(page) - 1).toString()
-            });
-            setPepData(response.data.data);
-            setPepTotalFound(response.data.total);
-        })();
-    }, [searchQuery, page, selectedValues]);
+
+    async function fetchData(): Promise<void> {
+        const response = await axios.post("/api/v1/pep/search",{
+            query: searchQuery,
+            year: selectedValues.year,
+            semester: selectedValues.semester,
+            examType: selectedValues.examType,
+            page: (parseInt(page || "1") - 1).toString()
+        });
+        setPepData(response.data.data);
+        setPepTotalFound(response.data.total);
+    };
+
+    useEffect(() =>{
+        fetchData();
+    }, [page, selectedValues.year, selectedValues.semester, selectedValues.examType]);
+
+    // useEffect(() => {
+    //     const handler = setTimeout(async() => {
+    //         await fetchData();
+    //     }, 2000);
+
+    //     return () => {
+    //         clearTimeout(handler);
+    //     };
+    // }, [searchQuery, page, selectedValues.year, selectedValues.semester, selectedValues.examType]);
 
     useEffect(() => {
         (async() => {
@@ -85,19 +95,39 @@ export default function Search(): React.JSX.Element {
     }, []);
 
     useEffect(() => {
-        const pagelist: string[] = [];
-        for (let i = 0; i < 5; i++) {
-            pagelist.push(((parseInt(page || "1") - 1) + i - 1).toString());
+        const currentPage = parseInt(page || "1");
+        const totalPages = Math.max(1, Math.ceil(parseInt(pepTotalFound || "0") / 12));
+        let pagelist: string[] = [];
+        
+        let start = Math.max(1, currentPage - 2);
+        let end = Math.min(totalPages, start + 4);
+        if (end - start < 4) {
+            start = Math.max(1, end - 4);
+        }
+        for (let i = start; i <= end; i++) {
+            pagelist.push(i.toString());
         }
         setPagination(prev => ({
             ...prev,
             pageOrder: pagelist,
-            pageMax: parseInt(pepTotalFound) / 12,
+            pageMax: totalPages,
+            pageMin: 1
         }));
-    }, [pepData, page]);
+    }, [pepData, page, pepTotalFound]);
 
     function changePages(direction: "next" | "prev" | number): void {
-        router.push(`/search?p=${typeof direction === "number" ? direction : (direction === "next" ? (parseInt(page || "1") - 1) : (parseInt(page || "1") + 1))}`, { scroll: false });
+        const currentPage = parseInt(page || "1");
+        let newPage = currentPage;
+        if (direction === "next") {
+            newPage = Math.max(1, currentPage - 1);
+        } else if (direction === "prev") {
+            newPage = Math.min(pagination.pageMax, currentPage + 1);
+        } else if (typeof direction === "number") {
+            newPage = direction;
+        }
+        if (newPage !== currentPage && newPage >= 1 && newPage <= pagination.pageMax) {
+            router.push(`/search?p=${newPage}`, { scroll: false });
+        }
     }
 
     return(
@@ -110,7 +140,17 @@ export default function Search(): React.JSX.Element {
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                                 <SearchIcon color="#ffb2a0" />
                             </div>
-                            <input type="text" className="bg-[#f3f6fb] bg-transparent flex h-12 rounded-xl shadow-md border border-[#ffc3b5] border-input px-3 outline-none pl-12 pr-4 py-4 text-lg w-full" placeholder="Search by subject code, name, year, or exam type..." onChange={(event: ChangeEvent<HTMLInputElement>) => setSearchQuery(event.target.value)} />
+                            <input
+                                type="text"
+                                className="bg-[#f3f6fb] bg-transparent flex h-12 rounded-xl shadow-md border border-[#ffc3b5] border-input px-3 outline-none pl-12 pr-4 py-4 text-lg w-full"
+                                placeholder="Search by subject code, name, year, or exam type..."
+                                onChange={(event: ChangeEvent<HTMLInputElement>) => setSearchQuery(event.target.value)}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter') {
+                                        fetchData();
+                                    }
+                                }}
+                            />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                             <div className="flex flex-col relative">
@@ -189,6 +229,22 @@ export default function Search(): React.JSX.Element {
                                 </div>
                             </div>
                         </div>
+                        <div className="mt-5 flex flex-row items-center">
+                            <div className={`${Object.values(selectedValues).some(value => value !== null) ? "opacity-100" : "opacity-0"} duration-150 text-sm font-light text-[#6c6c6c] py-1`}>Active filters: </div>
+                            <div hidden={!selectedValues.year} className={`ml-2 text-xs font-semibold px-[10px] py-1 text-[#434343] bg-[#ffcaa1] rounded-full flex flex-row items-center`}>
+                                <div className="mr-2">Year: {selectedValues.year}</div>
+                                <X size={15} className="cursor-pointer" />
+                            </div>
+                            <div hidden={!selectedValues.semester} className={`ml-2 text-xs font-semibold px-[10px] py-1 text-[#434343] bg-[#ffcaa1] rounded-full flex flex-row items-center`}>
+                                <div className="mr-2">Semester: {selectedValues.semester}</div>
+                                <X size={15} className="cursor-pointer" />
+                            </div>
+                            <div hidden={!selectedValues.examType} className={`ml-2 text-xs font-semibold px-[10px] py-1 text-[#434343] bg-[#ffcaa1] rounded-full flex flex-row items-center`}>
+                                <div className="mr-2">Type: {selectedValues.examType}</div>
+                                <X size={15} className="cursor-pointer" />
+                            </div>
+                            <div hidden={!Object.values(selectedValues).some(value => value !== null)} className="ml-4 underline text-[#ff7138] text-md cursor-pointer" onClick={() => setSelectedValues({ year: null, semester: null, examType: null })}>Clear all</div>
+                        </div>
                     </div>
                 </div>
                 <div className="mx-3 mt-8">
@@ -201,7 +257,7 @@ export default function Search(): React.JSX.Element {
                 <div className="mx-3 mt-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                         {pepData.map((pep: PepSpecs, i: number) => (
-                            <div key={i} className="bg-white shadow-sm rounded-xl p-6 hover:scale-105 hover:shadow-xl duration-150">
+                            <div key={i} className="bg-white shadow-sm rounded-xl p-6 hover:scale-105 hover:shadow-xl duration-300 animate-slide-in">
                                 <div className="flex flex-row justify-between items-center">
                                     <div className="flex flex-row items-center">
                                         <BookOpen color="#ff5f25" strokeWidth={2} size={18} />
@@ -219,7 +275,7 @@ export default function Search(): React.JSX.Element {
                                         <FileText strokeWidth={2} size={16} color="#000000" className="ml-4" />
                                         <div className="ml-1 font-light text-[#000000] text-sm">Semester {pep.semester}</div>
                                     </div>
-                                    <button className="flex flex-row items-center bg-gradient-to-br from-[#f7613b] to-[#f5aa2a] py-2 px-3 rounded-xl hover:scale-105 hover:shadow-xl active:scale-100 duration-150">
+                                    <button className="flex flex-row items-center bg-gradient-to-br from-[#f7613b] to-[#f5aa2a] py-2 px-3 rounded-xl hover:scale-105 hover:shadow-xl active:scale-100 duration-150" onClick={() => window.open(`/api/v1/pep/download?url=${pep.link}&name=${pep.subjectName}`,"_blank")}>
                                         <Download color="#fff" strokeWidth={2} size={16} />
                                         <div className="ml-2 text-sm font-semibold">Download</div>
                                     </button>                              
@@ -230,23 +286,29 @@ export default function Search(): React.JSX.Element {
                         ))}
                     </div>
                 </div>
-                <div className="mx-3 mt-10">
+
+                {/* Pagination Controls */}
+                <div className="mx-3 mt-16">
                     <div className="flex flex-row justify-center gap-1 items-center">
                         <button disabled={parseInt(page || "1") <= 1} className="rounded-full bg-gradient-to-br from-[#f7613b] to-[#f5aa2a] backdrop-blur-md shadow-xl w-10 h-10 items-center flex flex-row justify-center text-white " onClick={() => changePages("next")} >
                             <ChevronLeft strokeWidth={2} size={35} color="#ffffff" />
                         </button>
-
-                        <button onClick={() => changePages(parseInt(pagination.pageOrder[0]))} className="rounded-full bg-none w-10 h-10 items-center flex flex-row justify-center text-black font-bold text-xl">{parseInt(pagination.pageOrder[0]) <= 0 ? "" : pagination.pageOrder[0]}</button>
-                        <button onClick={() => changePages(parseInt(pagination.pageOrder[1]))} className="rounded-full bg-none w-10 h-10 items-center flex flex-row justify-center text-black font-bold text-xl">{parseInt(pagination.pageOrder[1]) <= 0 ? "" : pagination.pageOrder[1]}</button>
-                        <button onClick={() => changePages(parseInt(pagination.pageOrder[2]))} className="rounded-full bg-white/90 backdrop-blur-md shadow-xl w-10 h-10 items-center flex flex-row justify-center text-black font-bold text-xl">{pagination.pageOrder[2]}</button>
-                        <button onClick={() => changePages(parseInt(pagination.pageOrder[3]))} className="rounded-full bg-none w-10 h-10 items-center flex flex-row justify-center text-black font-bold text-xl">{pagination.pageOrder[3]}</button>
-                        <button onClick={() => changePages(parseInt(pagination.pageOrder[4]))} className="rounded-full bg-none w-10 h-10 items-center flex flex-row justify-center text-black font-bold text-xl">{pagination.pageOrder[4]}</button>
-
-                        <button disabled={parseInt(page || "") >= (pagination.pageMax)} className="rounded-full bg-gradient-to-br from-[#f7613b] to-[#f5aa2a] backdrop-blur-md shadow-xl w-10 h-10 items-center flex flex-row justify-center text-white" onClick={() => changePages("prev")}>
+                        {pagination.pageOrder.map((p, idx) => (
+                            <button
+                                key={p}
+                                onClick={() => changePages(parseInt(p))}
+                                className={`rounded-full w-10 h-10 items-center flex flex-row justify-center font-bold text-xl ${parseInt(p) === parseInt(page || "1") ? "bg-white/90 backdrop-blur-md shadow-xl text-black" : "bg-none text-black"}`}
+                                disabled={parseInt(p) === parseInt(page || "1")}
+                            >
+                                {p}
+                            </button>
+                        ))}
+                        <button disabled={parseInt(page || "1") >= pagination.pageMax} className="rounded-full bg-gradient-to-br from-[#f7613b] to-[#f5aa2a] backdrop-blur-md shadow-xl w-10 h-10 items-center flex flex-row justify-center text-white" onClick={() => changePages("prev")}>
                             <ChevronRight strokeWidth={2} size={35} color="#ffffff" />
                         </button>
                     </div>  
                 </div>
+
             </div>
         </>
     );

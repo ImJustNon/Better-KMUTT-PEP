@@ -15,8 +15,9 @@ export default function HeaderComponent(): React.JSX.Element {
                         <div className="text-5xl font-bold font-serif text-white text-center">
                             KMUTT Past Exam Paper
                         </div>
-                        <div className="text-lg font-thin text-white mt-5 text-center">
-                            Disclaimer:  บ่ใช่ Official เด้อเเค่ทำให้มีดูดีขึ้นเเล้วค้นหาง่ายขึ้นหน่อย
+                        <div className="text-xs font-bold text-white mt-3 text-center font-mono">Disclaimer</div>
+                        <div className="text-xs font-thin text-white text-center font-mono">
+                            This website is an independent project and is not affiliated with or endorsed by King Mongkut’s University of Technology Thonburi (KMUTT) or the official PEP system. The information and features provided here are for convenience and personal use only. For official information, please refer to KMUTT’s official channels and the official PEP website.
                         </div>
                     </div>            
                 </div>
