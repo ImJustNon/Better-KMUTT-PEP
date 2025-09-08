@@ -209,7 +209,7 @@ export default function Search(): React.JSX.Element {
                                     <div className="grow text-start text-sm px-1">{selectedValues.examType === null ? "All Exam Types" : selectedValues.examType}</div>
                                     <ChevronDown strokeWidth={3} size={25} color="#ffb2a0" />
                                 </div>
-                                <div className={`${openSelector.examType ? "scale-y-100 opacity-100" : "scale-y-0 opacity-1"} origin-top transform transition-transform ease-in-out duration-150 absolute border border-[#ffc3b5] rounded-xl w-full left-0 top-20 bg-[#fff] shadow-md p-1`}>
+                                <div className={`${openSelector.examType ? "scale-y-100 opacity-100" : "scale-y-0 opacity-1"} origin-top transform transition-transform ease-in-out duration-150 absolute border border-[#ffc3b5] rounded-xl w-full left-0 top-20 bg-[#fff] shadow-md p-1 z-10`}>
                                     
                                     <div className="px-3 py-2 text-sm text-[#6c6c6c] hover:bg-[#ffdfd5] active:bg-[#fcd2c5] rounded-xl cursor-pointer duration-300 flex flex-row items-center" onClick={() => setSelectedValues(prev => ({...prev, examType: null}))}>
                                         <div className="w-5">
@@ -257,7 +257,7 @@ export default function Search(): React.JSX.Element {
                 <div className="mx-3 mt-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                         {pepData.map((pep: PepSpecs, i: number) => (
-                            <div key={i} className="bg-white shadow-sm rounded-xl p-6 hover:scale-105 hover:shadow-xl duration-300 animate-slide-in">
+                            <div key={i} className="bg-white shadow-sm rounded-xl p-6 hover:scale-x-105 hover:shadow-xl duration-300 animate-slide-in">
                                 <div className="flex flex-row justify-between items-center">
                                     <div className="flex flex-row items-center">
                                         <BookOpen color="#ff5f25" strokeWidth={2} size={18} />
