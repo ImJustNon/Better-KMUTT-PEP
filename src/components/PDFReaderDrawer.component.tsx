@@ -1,4 +1,3 @@
-"use client"
 
 import { Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, DrawerOverlay, RadioGroup, Spinner, Stack, useDisclosure } from "@chakra-ui/react";
 import { Download, Radio, X } from "lucide-react";
@@ -6,13 +5,12 @@ import React, { useEffect, useState } from "react";
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import { GlobalWorkerOptions } from "pdfjs-dist";
 
-GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
+import dynamic from "next/dynamic";
 
+const PDFViewer = dynamic(() => import("../components/PDFViewer.component"), {
+  ssr: false,
+});
 
 export default function PDFReaderDrawerComponent({isOpen, onOpen, onClose, pdfUrl, pdfName}: {isOpen: boolean, onOpen: () => void, onClose: () => void; pdfUrl: string; pdfName: string}): React.JSX.Element {
     
@@ -65,38 +63,8 @@ export default function PDFReaderDrawerComponent({isOpen, onOpen, onClose, pdfUr
                         </div>
 
 
-                        <div className={`${pdfIsLoaded ? "animate__animated animate__fadeIn" : ""} flex-1 overflow-y-auto w-full flex justify-center items-start py-6`}>
-                            <Document
-                                file={pdfUrl}
-                                onLoadSuccess={onDocumentLoadSuccess}
-                                onLoadError={onDocumentLoadError}
-                                className="w-full"
-                                loading={
-                                    <div className={`flex justify-center items-center h-[800px]`}>
-                                        <Spinner
-                                            thickness='4px'
-                                            speed='0.65s'
-                                            emptyColor='gray.200'
-                                            color='#f7613b'
-                                            size="xl"
-                                        />
-                                    </div>
-                                }
-                                error={pdfIsError || ""}
-                            >
+                        <PDFViewer pdfIsLoaded={pdfIsLoaded} pdfIsError={pdfIsError} pdfTotalPages={pdfTotalPages} pdfUrl={pdfUrl} scale={scale} onDocumentLoadSuccess={onDocumentLoadSuccess} onDocumentLoadError={onDocumentLoadError} />
 
-                                {[...Array(pdfTotalPages).keys()].map((_, i) => (
-                                    <Page
-                                        key={i}
-                                        pageNumber={i + 1}
-                                        scale={scale}
-                                        className="shadow-lg w-fit mx-auto border border-border rounded-lg overflow-hidden bg-white mb-6"
-                                    />
-                                ))}
-                            </Document>
-                        </div>
-
-                       
                     </DrawerBody>
                 </DrawerContent>
             </Drawer>
