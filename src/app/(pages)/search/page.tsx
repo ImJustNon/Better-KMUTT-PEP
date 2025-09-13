@@ -3,13 +3,15 @@
 import { Book, BookOpen, Calendar, Check, ChevronDown, ChevronLeft, ChevronRight, Download, FileText, GraduationCap, SearchCheck, SearchIcon, X,  } from "lucide-react";
 import logo from "../../../assets/logo.svg";
 import Image from "next/image";
-import { ButtonGroup, createListCollection, IconButton, Pagination, Portal, Select } from "@chakra-ui/react";
+// import { ButtonGroup, createListCollection, IconButton, Pagination, Portal, Select } from "@chakra-ui/react";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import { ChangeEvent, useEffect, useState } from "react";
 import axios from "axios";
 import { PepSpecs } from "@/utils/DataSearch";
 import { LocalStorage } from "@/utils/LocalStorage";
 import { useRouter, useSearchParams } from "next/navigation";
+import PDFReaderDrawerComponent from "@/components/PDFReaderDrawer.component";
+import { useDisclosure } from "@chakra-ui/react";
 
 
 export default function Search(): React.JSX.Element {
@@ -77,16 +79,6 @@ export default function Search(): React.JSX.Element {
         fetchData();
     }, [page, selectedValues.year, selectedValues.semester, selectedValues.examType]);
 
-    // useEffect(() => {
-    //     const handler = setTimeout(async() => {
-    //         await fetchData();
-    //     }, 2000);
-
-    //     return () => {
-    //         clearTimeout(handler);
-    //     };
-    // }, [searchQuery, page, selectedValues.year, selectedValues.semester, selectedValues.examType]);
-
     useEffect(() => {
         (async() => {
             const response = await axios.post("/api/v1/pep/selector");
@@ -129,6 +121,13 @@ export default function Search(): React.JSX.Element {
             router.push(`/search?p=${newPage}`, { scroll: false });
         }
     }
+
+    const pdfReaderDrawerDisclosure = useDisclosure();
+    const pdfReaderDrawerIsOpen = pdfReaderDrawerDisclosure.isOpen;
+    const pdfReaderDrawerOnOpen = pdfReaderDrawerDisclosure.onOpen;
+    const pdfReaderDrawerOnClose = pdfReaderDrawerDisclosure.onClose;
+
+    const [pdfInfo, setPdfInfo] = useState<{ url: string; name: string }>({ url: "", name: "" });
 
     return(
         <>
@@ -275,9 +274,9 @@ export default function Search(): React.JSX.Element {
                                         <FileText strokeWidth={2} size={16} color="#000000" className="ml-4" />
                                         <div className="ml-1 font-light text-[#000000] text-sm">Semester {pep.semester}</div>
                                     </div>
-                                    <button className="flex flex-row items-center bg-gradient-to-br from-[#f7613b] to-[#f5aa2a] py-2 px-3 rounded-xl hover:scale-105 hover:shadow-xl active:scale-100 duration-150" onClick={() => window.open(`/api/v1/pep/download?url=${pep.link}&name=${pep.subjectName}`,"_blank")}>
+                                    <button className="flex flex-row items-center bg-gradient-to-br from-[#f7613b] to-[#f5aa2a] py-2 px-3 rounded-xl hover:scale-105 hover:shadow-xl active:scale-100 duration-150" onClick={() => {setPdfInfo({ url: `/api/v1/pep/download?url=${pep.link}&name=${pep.subjectName}`, name: pep.subjectName }); pdfReaderDrawerOnOpen();}}>
                                         <Download color="#fff" strokeWidth={2} size={16} />
-                                        <div className="ml-2 text-sm font-semibold">Download</div>
+                                        <div className="ml-2 text-sm font-semibold text-white">Download</div>
                                     </button>                              
                                 </div>
                                 <div className="mt-3 w-full h-[2px] bg-[#d5d5d5] rounded-xl"></div>
@@ -310,6 +309,8 @@ export default function Search(): React.JSX.Element {
                 </div>
 
             </div>
+
+            <PDFReaderDrawerComponent isOpen={pdfReaderDrawerIsOpen} onOpen={pdfReaderDrawerOnOpen} onClose={pdfReaderDrawerOnClose} pdfUrl={pdfInfo.url} pdfName={pdfInfo.name} />
         </>
     );
 }

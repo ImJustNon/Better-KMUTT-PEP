@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import HeaderComponent from "@/components/Header.component";
-import { Provider } from "@/components/ui/provider"
+import { Providers } from "./providers";
+import 'animate.css';
 
 
 export const metadata: Metadata = {
@@ -61,9 +61,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 	return (
 		<html lang="en">
 			<body className="bg-[#f2f5fa] duration-300">
-				<Provider>
+				<Providers>
 					{children}
-				</Provider>
+				</Providers>
 			</body>
 		</html>
 	);
