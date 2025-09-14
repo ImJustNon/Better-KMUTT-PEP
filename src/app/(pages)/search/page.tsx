@@ -256,7 +256,7 @@ export default function Search(): React.JSX.Element {
                 <div className="mx-3 mt-8">
 
                     {pepData.length === 0 ? (
-                        <div className="bg-white flex flex-col items-center w-full rounded-xl shadow-md py-10">
+                        <div className="bg-white flex flex-col items-center w-full rounded-xl shadow-md py-10 px-5 text-center">
                             <FileText className="h-16 w-16 mx-auto text-gray-400 mb-4" />
                             <h3 className="text-xl font-semibold text-gray-700 mb-2">
                                 No exam papers found
