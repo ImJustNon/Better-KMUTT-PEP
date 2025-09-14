@@ -254,36 +254,57 @@ export default function Search(): React.JSX.Element {
                     </div>
                 </div>
                 <div className="mx-3 mt-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                        {pepData.map((pep: PepSpecs, i: number) => (
-                            <div key={i} className="bg-white shadow-sm rounded-xl p-6 hover:scale-x-105 hover:shadow-xl duration-300 animate-slide-in">
-                                <div className="flex flex-row justify-between items-center">
-                                    <div className="flex flex-row items-center">
-                                        <BookOpen color="#ff5f25" strokeWidth={2} size={18} />
-                                        <div className="ml-2 font-mono text-sm font-semibold text-[#ff5517]">{pep.subjectCode}</div>
+
+                    {pepData.length === 0 ? (
+                        <div className="bg-white flex flex-col items-center w-full rounded-xl shadow-md py-10">
+                            <FileText className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                                No exam papers found
+                            </h3>
+                            <p className="text-gray-500 mb-4">
+                                Try adjusting your search terms or filters to find what you're looking for.
+                            </p>
+                            {(selectedValues.examType || selectedValues.year || selectedValues.semester) && (
+                                <button
+                                    onClick={() => setSelectedValues({ year: null, semester: null, examType: null })}
+                                    className="underline text-[#ff7138] text-md cursor-pointer"
+                                >
+                                Clear all filters
+                                </button>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            {pepData.map((pep: PepSpecs, i: number) => (
+                                <div key={i} className="bg-white shadow-sm rounded-xl p-6 hover:scale-x-105 hover:shadow-xl duration-300 animate-slide-in">
+                                    <div className="flex flex-row justify-between items-center">
+                                        <div className="flex flex-row items-center">
+                                            <BookOpen color="#ff5f25" strokeWidth={2} size={18} />
+                                            <div className="ml-2 font-mono text-sm font-semibold text-[#ff5517]">{pep.subjectCode}</div>
+                                        </div>
+                                        <div className="text-[#fff] font-semibold bg-[#ffbb00] rounded-2xl px-3 py-1 text-xs">{pep.examType}</div>
                                     </div>
-                                    <div className="text-[#fff] font-semibold bg-[#ffbb00] rounded-2xl px-3 py-1 text-xs">{pep.examType}</div>
-                                </div>
-                                <div className="mt-3 grid grid-cols-4">
-                                    <div className="col-span-3 text-black font-semibold text-lg leading-tight line-clamp-2">{pep.subjectName}</div>
-                                </div>
-                                <div className="mt-5 flex flex-row justify-between items-center">
-                                    <div className="flex flex-row items-center">
-                                        <Calendar strokeWidth={2} size={16} color="#000000" />
-                                        <div className="ml-1 font-light text-[#000000] text-sm">Year {pep.year}</div>
-                                        <FileText strokeWidth={2} size={16} color="#000000" className="ml-4" />
-                                        <div className="ml-1 font-light text-[#000000] text-sm">Semester {pep.semester}</div>
+                                    <div className="mt-3 grid grid-cols-4">
+                                        <div className="col-span-3 text-black font-semibold text-lg leading-tight line-clamp-2">{pep.subjectName}</div>
                                     </div>
-                                    <button className="flex flex-row items-center bg-gradient-to-br from-[#f7613b] to-[#f5aa2a] py-2 px-3 rounded-xl hover:scale-105 hover:shadow-xl active:scale-100 duration-150" onClick={() => {setPdfInfo({ url: `/api/v1/pep/download?url=${pep.link}&name=${pep.subjectName}`, name: pep.subjectName }); pdfReaderDrawerOnOpen();}}>
-                                        <Download color="#fff" strokeWidth={2} size={16} />
-                                        <div className="ml-2 text-sm font-semibold text-white">Download</div>
-                                    </button>                              
+                                    <div className="mt-5 flex flex-row justify-between items-center">
+                                        <div className="flex flex-row items-center">
+                                            <Calendar strokeWidth={2} size={16} color="#000000" />
+                                            <div className="ml-1 font-light text-[#000000] text-sm">Year {pep.year}</div>
+                                            <FileText strokeWidth={2} size={16} color="#000000" className="ml-4" />
+                                            <div className="ml-1 font-light text-[#000000] text-sm">Semester {pep.semester}</div>
+                                        </div>
+                                        <button className="flex flex-row items-center bg-gradient-to-br from-[#f7613b] to-[#f5aa2a] py-2 px-3 rounded-xl hover:scale-105 hover:shadow-xl active:scale-100 duration-150" onClick={() => {setPdfInfo({ url: `/api/v1/pep/download?url=${pep.link}&name=${pep.subjectName}`, name: pep.subjectName }); pdfReaderDrawerOnOpen();}}>
+                                            <Download color="#fff" strokeWidth={2} size={16} />
+                                            <div className="ml-2 text-sm font-semibold text-white">Download</div>
+                                        </button>                              
+                                    </div>
+                                    <div className="mt-3 w-full h-[2px] bg-[#d5d5d5] rounded-xl"></div>
+                                    <div className="mt-3 text-[#5f5f5f] text-xs">Call Number: {pep.callNumber}</div>     
                                 </div>
-                                <div className="mt-3 w-full h-[2px] bg-[#d5d5d5] rounded-xl"></div>
-                                <div className="mt-3 text-[#5f5f5f] text-xs">Call Number: {pep.callNumber}</div>     
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div> 
+                    )}
                 </div>
 
                 {/* Pagination Controls */}
