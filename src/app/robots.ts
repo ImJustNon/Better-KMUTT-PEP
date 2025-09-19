@@ -1,6 +1,7 @@
-import { type MetadataRoute } from 'next';
 
-export default function robots(): MetadataRoute.Robots {
+const DOMAIN = 'https://better-pep.vercel.app';
+
+export default function robots() {
     return {
         rules: [
             {
@@ -8,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
                 allow: '/',
             },
         ],
-        sitemap: 'https://better-pep.vercel.app/sitemap.xml',
+        sitemap: `${DOMAIN}/sitemap.xml`,
     };
 }
